@@ -7,6 +7,8 @@ import styles from './home.module.scss';
 
 import Header from '../components/Header';
 import Post from './post/[slug]';
+import { JSXElementConstructor } from 'react';
+import Link from 'next/link';
 
 interface Post {
   uid?: string;
@@ -27,22 +29,33 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props) {
+export default function Home(props): JSXElement {
   // TODO
+
+  const { postsResponse } = props;
+
+  const { results } = postsResponse;
+
   return (
     <div className={styles.container}>
       <Header />
 
-      <div>
-        <h1>Title</h1>
-        <p>Content</p>
-        <div>
-          <ul>
-            <li>Date</li>
-            <li>Author</li>
-          </ul>
-        </div>
-      </div>
+      {results.map((post: Post) => {
+        return (
+          <div key={post.uid}>
+            <Link href={`/post/${post.uid}`}>
+              <h1>{post.data.title}</h1>
+            </Link>
+            <p>{post.data.subtitle}</p>
+            <ul>
+              <li>{post.first_publication_date}</li>
+              <li>{post.data.author}</li>
+            </ul>
+          </div>
+        );
+      })}
+
+      <a href="">Carregar mais posts</a>
     </div>
   );
 }
