@@ -26,9 +26,22 @@ interface PostProps {
   post: Post;
 }
 
-// export default function Post() {
-//   // TODO
-// }
+export default function Post({ post }: PostProps) {
+  // TODO
+  return (
+    <>
+      {/* <img src={post.data.banner} alt="banner" /> */}
+      <h1>{post.data.title}</h1>
+      <p>{post.data.content}</p>
+      <div>
+        <ul>
+          <li>{post.first_publication_date}</li>
+          <li>{post.data.author}</li>
+        </ul>
+      </div>
+    </>
+  );
+}
 
 // export const getStaticPaths = async () => {
 //   const prismic = getPrismicClient({});
@@ -37,9 +50,13 @@ interface PostProps {
 //   // TODO
 // };
 
-// export const getStaticProps = async ({params }) => {
-//   const prismic = getPrismicClient({});
-//   const response = await prismic.getByUID(TODO);
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const prismic = getPrismicClient({});
+  const response = await prismic.getByUID('page', params.uid);
 
-//   // TODO
-// };
+  return {
+    props: { response },
+  };
+
+  // TODO
+};
