@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GetStaticPaths, GetStaticProps } from 'next';
 
-import { getPrismicClient } from '../../services/prismic';
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 
-import dynamic from 'next/dynamic';
+import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
@@ -37,36 +38,50 @@ export default function Post({ post }: Post) {
 
   const content = data.Content;
 
+  const formatedDate = format(new Date(first_publication_date), 'dd MMM yyyy', {
+    locale: ptBR,
+  });
+
   return (
     <>
       <img src={data.banner.url} alt="banner" />
       <h1>{data.title}</h1>
+      <div>
+        <ul>
+          <li>4 min</li>
+          <li>{formatedDate}</li>
+          <li>{data.author}</li>
+        </ul>
+      </div>
 
       {content !== undefined &&
         content.map(({ heading, body }) => {
           return (
             <>
               <h2>{heading}</h2>
-              {body.map(bodyText => {
+              <p>{body.text}</p>
+              {/* {body.map(bodyText => {
                 return <p>{bodyText.text}</p>;
-              })}
+              })} */}
             </>
           );
         })}
-
-      <div>
-        <ul>
-          <li>{first_publication_date}</li>
-          <li>{data.author}</li>
-        </ul>
-      </div>
     </>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const prismic = getPrismicClient({});
+  const posts = await prismic.getByType('posts');
+
+  const uid = posts.results.map(post => {
+    return post.uid;
+  });
+
   return {
+    // paths: [{ params: { slug: uid[0] } }, { params: { slug: uid[1] } }],
     paths: [],
+    // { params: { slug: posts.results[1].uid } },
     fallback: 'blocking',
   };
   // TODO
