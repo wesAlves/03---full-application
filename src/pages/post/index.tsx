@@ -17,7 +17,8 @@ export default function Posts({
 }: PostsProps) {
   return (
     <>
-      <Link href={`/post/${uid}`}>
+      jaca
+      {/* <Link href={`/post/${uid}`}>
         <div key={uid}>
           <h1>{data.title}</h1>
           <p>{data.subtitle}</p>
@@ -26,7 +27,7 @@ export default function Posts({
             <li>{data.author}</li>
           </ul>
         </div>
-      </Link>
+      </Link> */}
     </>
   );
 }

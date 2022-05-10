@@ -44,15 +44,23 @@ export default function Home({ postsPagination }: HomeProps) {
     <div className={styles.container}>
       <Header />
 
-      {results.map((post: Post) => {
-        return (
-          <Posts
-            uid={post.uid}
-            data={post.data}
-            first_publication_date={post.first_publication_date}
-          />
-        );
-      })}
+      {results !== undefined &&
+        results.map((post: Post) => {
+          return (
+            <>
+              <Link href={`/post/${post.uid}`}>
+                <div key={post.uid}>
+                  <h1>{post.data.title}</h1>
+                  <p>{post.data.subtitle}</p>
+                  <ul>
+                    <li>{post.first_publication_date}</li>
+                    <li>{post.data.author}</li>
+                  </ul>
+                </div>
+              </Link>
+            </>
+          );
+        })}
 
       {next_page !== null && <Link href="/" />}
     </div>

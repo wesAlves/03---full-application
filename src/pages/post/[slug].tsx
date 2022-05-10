@@ -3,6 +3,8 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 
 import { getPrismicClient } from '../../services/prismic';
 
+import dynamic from 'next/dynamic';
+
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
@@ -32,23 +34,25 @@ export default function Post({ post }: Post) {
   // TODO
 
   const { data, first_publication_date } = post;
-  console.log(data.Content);
+
+  const content = data.Content;
 
   return (
     <>
       <img src={data.banner.url} alt="banner" />
       <h1>{data.title}</h1>
 
-      {data.Content.map(({ heading, body }) => {
-        return (
-          <>
-            <h2>{heading}</h2>
-            {body.map(bodyText => {
-              return <p>{bodyText.text}</p>;
-            })}
-          </>
-        );
-      })}
+      {content !== undefined &&
+        content.map(({ heading, body }) => {
+          return (
+            <>
+              <h2>{heading}</h2>
+              {body.map(bodyText => {
+                return <p>{bodyText.text}</p>;
+              })}
+            </>
+          );
+        })}
 
       <div>
         <ul>
@@ -61,8 +65,6 @@ export default function Post({ post }: Post) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const prismic = getPrismicClient({});
-  // const posts = await prismic.getByType('posts');
   return {
     paths: [],
     fallback: 'blocking',
@@ -76,10 +78,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts', String(slug));
 
-  const post = {
-    first_publication_date: response.first_publication_date,
-    data: response.data,
-  };
+  const post = response;
 
   return {
     props: { post },
