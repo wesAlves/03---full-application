@@ -1,4 +1,4 @@
-import { GetStaticProps } from 'next';
+import next, { GetStaticProps } from 'next';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -7,8 +7,10 @@ import styles from './home.module.scss';
 
 import Header from '../components/Header';
 import Post from './post/[slug]';
+import Posts from './post';
 import { JSXElementConstructor } from 'react';
 import Link from 'next/link';
+import el from 'date-fns/esm/locale/el/index.js';
 
 interface Post {
   uid?: string;
@@ -29,33 +31,30 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props): JSXElement {
+export default function Home({ postsPagination }: HomeProps) {
   // TODO
 
-  const { postsResponse } = props;
+  // const { posts } = props;
+  // console.log(postsResponse);
 
-  const { results } = postsResponse;
+  const  = postsPagination.results;
+  const nextPage = posts?.next_page;
 
   return (
     <div className={styles.container}>
       <Header />
 
-      {results.map((post: Post) => {
+      {postsResults.map((post: Post) => {
         return (
-          <div key={post.uid}>
-            <Link href={`/post/${post.uid}`}>
-              <h1>{post.data.title}</h1>
-            </Link>
-            <p>{post.data.subtitle}</p>
-            <ul>
-              <li>{post.first_publication_date}</li>
-              <li>{post.data.author}</li>
-            </ul>
-          </div>
+          <Posts
+            uid={post.uid}
+            data={post.data}
+            first_publication_date={post.first_publication_date}
+          />
         );
       })}
 
-      <a href="">Carregar mais posts</a>
+      {nextPage !== null && <Link href="/" />}
     </div>
   );
 }
@@ -65,9 +64,21 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const postsResponse = await prismic.getByType('posts');
 
+  const posts = postsResponse.results.map((post): Post => {
+    return {
+      uid: post.uid,
+      data: {
+        author: post.data.author,
+        subtitle: post.data.subtitle,
+        title: post.data.title,
+      },
+      first_publication_date: post.first_publication_date,
+    };
+  });
+
   return {
     props: {
-      postsResponse,
+      posts,
     },
   };
 

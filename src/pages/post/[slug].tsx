@@ -22,11 +22,7 @@ interface Post {
   };
 }
 
-interface PostProps {
-  post: Post;
-}
-
-export default function Post({ post }: PostProps) {
+export default function Post({ post }: Post) {
   // TODO
   return (
     <>
@@ -43,20 +39,42 @@ export default function Post({ post }: PostProps) {
   );
 }
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient({});
-//   const posts = await prismic.getByType(TODO);
-
-//   // TODO
-// };
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient({});
-  const response = await prismic.getByUID('page', params.uid);
+  const posts = await prismic.getByType('posts');
 
   return {
-    props: { response },
+    paths: [{ params: { posts } }],
+    fallback: 'blocking',
+  };
+  // TODO
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { uid } = params;
+
+  const prismic = getPrismicClient({});
+  const response = await prismic.getByUID('posts', String(uid));
+
+  const post = {
+    first_publication_date: response.first_publication_date,
+    data: {
+      title: response.data.title,
+      banner: {
+        url: response.data.banner.url,
+      },
+      author: response.data.author,
+      content: {
+        heading: response.data.content.heading,
+        body: {
+          text: response.data.body.text,
+        },
+      },
+    },
   };
 
-  // TODO
+  return {
+    props: { post },
+    redirect: 60 * 60 * 24 * 7,
+  };
 };
