@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GetStaticPaths, GetStaticProps } from 'next';
 
 import { getPrismicClient } from '../../services/prismic';
@@ -13,7 +14,7 @@ interface Post {
       url: string;
     };
     author: string;
-    content: {
+    Content: {
       heading: string;
       body: {
         text: string;
@@ -22,17 +23,37 @@ interface Post {
   };
 }
 
+interface PostProps {
+  post: Post;
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default function Post({ post }: Post) {
   // TODO
+
+  const { data, first_publication_date } = post;
+  console.log(data.Content);
+
   return (
     <>
-      {/* <img src={post.data.banner} alt="banner" /> */}
-      <h1>{post.data.title}</h1>
-      <p>{post.data.content}</p>
+      <img src={data.banner.url} alt="banner" />
+      <h1>{data.title}</h1>
+
+      {data.Content.map(({ heading, body }) => {
+        return (
+          <>
+            <h2>{heading}</h2>
+            {body.map(bodyText => {
+              return <p>{bodyText.text}</p>;
+            })}
+          </>
+        );
+      })}
+
       <div>
         <ul>
-          <li>{post.first_publication_date}</li>
-          <li>{post.data.author}</li>
+          <li>{first_publication_date}</li>
+          <li>{data.author}</li>
         </ul>
       </div>
     </>
@@ -41,40 +62,27 @@ export default function Post({ post }: Post) {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient({});
-  const posts = await prismic.getByType('posts');
-
+  // const posts = await prismic.getByType('posts');
   return {
-    paths: [{ params: { posts } }],
+    paths: [],
     fallback: 'blocking',
   };
   // TODO
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { uid } = params;
+  const { slug } = params;
 
   const prismic = getPrismicClient({});
-  const response = await prismic.getByUID('posts', String(uid));
+  const response = await prismic.getByUID('posts', String(slug));
 
   const post = {
     first_publication_date: response.first_publication_date,
-    data: {
-      title: response.data.title,
-      banner: {
-        url: response.data.banner.url,
-      },
-      author: response.data.author,
-      content: {
-        heading: response.data.content.heading,
-        body: {
-          text: response.data.body.text,
-        },
-      },
-    },
+    data: response.data,
   };
 
   return {
     props: { post },
-    redirect: 60 * 60 * 24 * 7,
+    revalidate: 60 * 60 * 24 * 7,
   };
 };

@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import next, { GetStaticProps } from 'next';
 
+import { JSXElementConstructor } from 'react';
+import Link from 'next/link';
+import el from 'date-fns/esm/locale/el/index.js';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -8,9 +12,6 @@ import styles from './home.module.scss';
 import Header from '../components/Header';
 import Post from './post/[slug]';
 import Posts from './post';
-import { JSXElementConstructor } from 'react';
-import Link from 'next/link';
-import el from 'date-fns/esm/locale/el/index.js';
 
 interface Post {
   uid?: string;
@@ -31,20 +32,19 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function Home({ postsPagination }: HomeProps) {
-  // TODO
+  // eslint-disable-next-line prefer-destructuring
+  const results = postsPagination.results;
 
-  // const { posts } = props;
-  // console.log(postsResponse);
-
-  const  = postsPagination.results;
-  const nextPage = posts?.next_page;
+  // eslint-disable-next-line prefer-destructuring
+  const next_page = postsPagination.next_page;
 
   return (
     <div className={styles.container}>
       <Header />
 
-      {postsResults.map((post: Post) => {
+      {results.map((post: Post) => {
         return (
           <Posts
             uid={post.uid}
@@ -54,7 +54,7 @@ export default function Home({ postsPagination }: HomeProps) {
         );
       })}
 
-      {nextPage !== null && <Link href="/" />}
+      {next_page !== null && <Link href="/" />}
     </div>
   );
 }
@@ -64,23 +64,15 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const postsResponse = await prismic.getByType('posts');
 
-  const posts = postsResponse.results.map((post): Post => {
-    return {
-      uid: post.uid,
-      data: {
-        author: post.data.author,
-        subtitle: post.data.subtitle,
-        title: post.data.title,
-      },
-      first_publication_date: post.first_publication_date,
-    };
-  });
+  const postsPagination = {
+    next_page: postsResponse.next_page,
+    results: postsResponse.results,
+  };
 
   return {
     props: {
-      posts,
+      postsPagination,
     },
+    revalidate: 60 * 60 * 24 * 7,
   };
-
-  // TODO
 };
