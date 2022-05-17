@@ -26,7 +26,11 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home() {
+export default function Home({ postsPagination }: HomeProps) {
+  const { results } = postsPagination;
+
+  const { next_page } = postsPagination;
+
   return (
     <div>
       <Header />
@@ -41,13 +45,30 @@ export default function Home() {
           </ul>
         </div>
       </Link>
+
+      <button
+        type="button"
+        value="Carregar mais posts"
+        onClick={() => console.log('button was clicked')}
+      >
+        Carregar mais posts
+      </button>
     </div>
   );
 }
 
-// export const getStaticProps = async () => {
-//   // const prismic = getPrismicClient({});
-//   // const postsResponse = await prismic.getByType(TODO);
+export const getStaticProps = async () => {
+  const prismic = getPrismicClient({});
+  const postsResponse = await prismic.getByType('posts');
 
-//   // TODO
-// };
+  const postsPagination = {
+    next_page: postsResponse.next_page,
+    results: postsResponse.results,
+  };
+
+  return {
+    props: {
+      postsPagination,
+    },
+  };
+};
