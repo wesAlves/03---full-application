@@ -46,18 +46,16 @@ export default function Home({ postsPagination }: HomeProps) {
             locale: ptBR,
           }
         );
-
-        console.log(formatedDate);
         return (
-          <Link href="/post/${post.uid" key={post.uid}>
-            <>
+          <Link href={`/post/${post.uid}`} key={post.uid}>
+            <a>
               <h1>{post.data.title}</h1>
               <p>{post.data.subtitle}</p>
               <ul>
                 <li>{formatedDate}</li>
                 <li>{post.data.author}</li>
               </ul>
-            </>
+            </a>
           </Link>
         );
       })}
