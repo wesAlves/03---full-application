@@ -75,13 +75,15 @@ export default function Home({ postsPagination }: HomeProps) {
         );
       })}
 
-      <button
-        type="button"
-        value="Carregar mais posts"
-        onClick={() => handleLoadMorePosts(nextPage)}
-      >
-        Carregar mais posts
-      </button>
+      {!!nextPage && (
+        <button
+          type="button"
+          value="Carregar mais posts"
+          onClick={() => handleLoadMorePosts(nextPage)}
+        >
+          Carregar mais posts
+        </button>
+      )}
     </div>
   );
 }
