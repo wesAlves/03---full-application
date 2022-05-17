@@ -9,6 +9,8 @@ import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { useState } from 'react';
+import Post from './post/[slug]';
 
 interface Post {
   uid?: string;
@@ -30,9 +32,22 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
-  const { results } = postsPagination;
+  const [results, setResults] = useState(postsPagination.results);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
 
-  const { next_page } = postsPagination;
+  // const { results } = postsPagination;
+
+  // const { next_page } = postsPagination;
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleLoadMorePosts = (value: string) => {
+    fetch(value)
+      .then(response => response.json())
+      .then(data => {
+        setResults(data.results);
+        setNextPage(data.next_page);
+      });
+  };
 
   return (
     <div>
@@ -63,7 +78,7 @@ export default function Home({ postsPagination }: HomeProps) {
       <button
         type="button"
         value="Carregar mais posts"
-        onClick={() => console.log('button was clicked')}
+        onClick={() => handleLoadMorePosts(nextPage)}
       >
         Carregar mais posts
       </button>
