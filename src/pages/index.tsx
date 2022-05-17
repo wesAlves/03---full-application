@@ -2,6 +2,9 @@ import { GetStaticProps } from 'next';
 import Link from 'next/link';
 import Header from '../components/Header';
 
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -35,16 +38,29 @@ export default function Home({ postsPagination }: HomeProps) {
     <div>
       <Header />
 
-      <Link href="/post/${post.uid">
-        <div key="post.uid">
-          <h1>post.data.title</h1>
-          <p>post.data.subtitle</p>
-          <ul>
-            <li>post.first_publication_date</li>
-            <li>post.data.author</li>
-          </ul>
-        </div>
-      </Link>
+      {results.map(post => {
+        const formatedDate = format(
+          new Date(post.first_publication_date),
+          'dd MMM yyyy',
+          {
+            locale: ptBR,
+          }
+        );
+
+        console.log(formatedDate);
+        return (
+          <Link href="/post/${post.uid" key={post.uid}>
+            <>
+              <h1>{post.data.title}</h1>
+              <p>{post.data.subtitle}</p>
+              <ul>
+                <li>{formatedDate}</li>
+                <li>{post.data.author}</li>
+              </ul>
+            </>
+          </Link>
+        );
+      })}
 
       <button
         type="button"
